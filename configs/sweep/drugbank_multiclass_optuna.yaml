@@ -1,0 +1,38 @@
+# Full sweep over the multiclass run — for the server.
+base_config: configs/experiment/drugbank_multiclass.yaml
+
+sweep:
+  n_trials: 30
+  sampler: tpe
+  pruner: hyperband
+  monitor: val/f1_macro
+  timeout: null
+
+mlflow:
+  tracking_uri: file:./mlruns
+  experiment_name: graphddi-drugbank-multiclass-sweep
+
+search_space:
+  model.init_args.lr:
+    type: loguniform
+    low: 1.0e-5
+    high: 3.0e-3
+  model.init_args.weight_decay:
+    type: loguniform
+    low: 1.0e-4
+    high: 1.0e-1
+  model.init_args.dropout:
+    type: uniform
+    low: 0.0
+    high: 0.4
+  # NOTE: Sweeping encoder.hidden_channels also requires changing
+  # readout.in_channels (and is coupled with use_interaction_map). Keep this
+  # sweep to shape-independent hparams; vary architecture by running multiple
+  # studies with different `base_config` files.
+  model.init_args.encoder.init_args.num_layers:
+    type: int
+    low: 2
+    high: 5
+  model.init_args.mlp_hidden_dim:
+    type: int_categorical
+    choices: [128, 256, 512]

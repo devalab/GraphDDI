@@ -1,0 +1,53 @@
+seed_everything: 42
+trainer:
+  accelerator: auto
+  devices: 1
+  precision: 32
+  max_epochs: 2
+  gradient_clip_val: 1.0
+  enable_progress_bar: true
+  enable_model_summary: false
+  log_every_n_steps: 1
+  logger:
+    class_path: graphddi.training.MLFlowLogger
+    init_args:
+      experiment_name: graphddi-smoke
+  callbacks:
+  - class_path: graphddi.training.GraphDDIParamSummary
+  - class_path: graphddi.training.GraphDDIProgressBar
+data:
+  class_path: graphddi.data.DrugBankMiniDataModule
+  init_args:
+    csv_path: tests/fixtures/drugbank_mini.csv
+    task: multiclass
+    batch_size: 8
+    num_workers: 0
+    seed: 42
+    oversample_min_fraction: 0.005
+model:
+  class_path: graphddi.models.GraphDDIModule
+  init_args:
+    encoder:
+      class_path: graphddi.models.PNAEncoder
+      init_args:
+        in_channels: 108
+        hidden_channels: 16
+        edge_dim: 9
+        edge_hidden_channels: 32
+        num_layers: 2
+        dropout: 0.0
+    readout:
+      class_path: graphddi.models.Set2SetReadout
+      init_args:
+        in_channels: 32
+        processing_steps: 2
+        project_to: 32
+    use_interaction_map: true
+    hidden_dim: 16
+    mlp_hidden_dim: 32
+    dropout: 0.1
+    label_smoothing: 0.1
+    lr: 0.0003
+    weight_decay: 0.01
+    warmup_steps: 5
+    max_steps: 100

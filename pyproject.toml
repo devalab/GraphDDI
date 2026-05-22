@@ -1,0 +1,82 @@
+[project]
+name = "graphddi"
+version = "0.1.0"
+description = "GraphDDI: Graph Neural Network for Prediction of Drug-Drug Interaction"
+readme = "README.md"
+authors = [
+    { name = "Suyash Gupta", email = "suyash.gupta@research.iiit.ac.in" },
+    { name = "Siddhartha Laghuvarapu" },
+    { name = "U. Deva Priyakumar" },
+]
+requires-python = ">=3.13"
+dependencies = [
+    "jsonargparse[signatures]>=4.49.0",
+    "lightning>=2.6.1",
+    "matplotlib>=3.10.9",
+    "mlflow>=3.12.0",
+    "numpy>=2.4.6",
+    "optuna>=4.8.0",
+    "optuna-integration[pytorch-lightning]>=4.8.0",
+    "pandas>=2.3.3",
+    "pytdc>=0.3.6",
+    "rdkit>=2026.3.2",
+    "rich>=15.0.0",
+    "scikit-learn>=1.8.0",
+    "structlog>=25.5.0",
+    "torch>=2.12.0",
+    "torch-geometric>=2.7.0",
+    "torchmetrics>=1.9.0",
+    "typer>=0.25.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.10.5,<0.11.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ruff>=0.15.13",
+    "ty>=0.0.38",
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu130" }
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = [
+    "E501",  # line too long — handled by formatter when feasible
+    "B008",  # function call in default arg — fine for Lightning/PyG init
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B018"]
+"scripts/*" = ["E402"]
+
+[tool.ty.rules]
+# ty is in beta — silence noisy / not-yet-implemented rules.
+# Real type errors should still surface.
+unresolved-attribute = "ignore"
+unresolved-import = "ignore"
+missing-argument = "ignore"
+invalid-argument-type = "ignore"
+no-matching-overload = "ignore"
+possibly-missing-attribute = "ignore"
+call-non-callable = "ignore"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"

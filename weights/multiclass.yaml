@@ -1,0 +1,154 @@
+# lightning.pytorch==2.6.1
+seed_everything: 42
+trainer:
+  accelerator: gpu
+  strategy: auto
+  devices: 1
+  num_nodes: 1
+  precision: bf16-mixed
+  logger:
+    class_path: graphddi.training.MLFlowLogger
+    init_args:
+      experiment_name: graphddi-drugbank-multiclass
+      run_name: '20260522171021'
+      tracking_uri: sqlite:///logs/tracking/mlflow.db
+      tags: null
+      save_dir: ./mlruns
+      log_model: false
+      prefix: ''
+      artifact_location: file:logs/tracking/artifacts
+      run_id: null
+      synchronous: null
+  callbacks:
+  - class_path: graphddi.training.GraphDDIParamSummary
+  - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: step
+      log_momentum: false
+      log_weight_decay: false
+  - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+    init_args:
+      dirpath: logs\graphddi-drugbank-multiclass\20260522171021\checkpoints
+      filename: null
+      monitor: val/f1_macro
+      verbose: false
+      save_last: true
+      save_top_k: 3
+      save_on_exception: false
+      save_weights_only: false
+      mode: max
+      auto_insert_metric_name: true
+      every_n_train_steps: null
+      train_time_interval: null
+      every_n_epochs: null
+      save_on_train_epoch_end: null
+      enable_version_counter: true
+  - class_path: graphddi.training.GraphDDIProgressBar
+    init_args:
+      refresh_rate: 10
+  - class_path: lightning.pytorch.callbacks.EarlyStopping
+    init_args:
+      monitor: val/f1_macro
+      min_delta: 0.001
+      patience: 10
+      verbose: false
+      mode: max
+      strict: true
+      check_finite: true
+      stopping_threshold: null
+      divergence_threshold: null
+      check_on_train_epoch_end: null
+      log_rank_zero_only: false
+  fast_dev_run: false
+  max_epochs: 60
+  min_epochs: null
+  max_steps: -1
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: null
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: null
+  log_every_n_steps: 25
+  enable_checkpointing: null
+  enable_progress_bar: null
+  enable_model_summary: false
+  accumulate_grad_batches: 1
+  gradient_clip_val: 1.0
+  gradient_clip_algorithm: null
+  deterministic: true
+  benchmark: null
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+  enable_autolog_hparams: true
+  model_registry: null
+model:
+  class_path: graphddi.models.GraphDDIModule
+  init_args:
+    encoder:
+      class_path: graphddi.models.PNAEncoder
+      init_args:
+        in_channels: 108
+        hidden_channels: 64
+        edge_dim: 9
+        edge_hidden_channels: 128
+        num_layers: 6
+        deg: null
+        aggregators:
+        - mean
+        - max
+        - min
+        - std
+        scalers:
+        - identity
+        - amplification
+        - attenuation
+        towers: 1
+        dropout: 0.1
+        pre_layers: 1
+        post_layers: 1
+    readout:
+      class_path: graphddi.models.Set2SetReadout
+      init_args:
+        in_channels: 128
+        processing_steps: 2
+        project_to: 128
+    hidden_dim: 64
+    mlp_hidden_dim: 128
+    use_interaction_map: true
+    dropout: 0.1
+    label_smoothing: 0.1
+    lr: 0.0003
+    weight_decay: 0.01
+    warmup_steps: 1000
+    max_steps: 100000
+data:
+  class_path: graphddi.data.DrugBankDataModule
+  init_args:
+    task: multiclass
+    batch_size: 256
+    num_workers: 4
+    data_root: ./data
+    seed: 42
+    split_fracs:
+    - 0.7
+    - 0.1
+    - 0.2
+    oversample_min_fraction: 0.005
+    cache: true
+matmul_precision: medium
+optimizer: null
+lr_scheduler: null
+ckpt_path: null
+weights_only: null

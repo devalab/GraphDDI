@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+wheels/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.ty_cache/
+
+# uv / venv
+.venv/
+
+# Data — TDC downloads, cached featurized graphs, etc. live here.
+# Pinned to repo root so `src/graphddi/data/` is not affected.
+# Only tests/fixtures/drugbank_mini.csv is committed.
+/data/
+
+# Training artifacts — every run lives under logs/<exp>/<TS>/.
+logs/
+# Legacy locations (kept ignored in case older runs land in them).
+mlruns/
+lightning_logs/
+outputs/
+checkpoints/
+*.pt
+*.ckpt
+# weights/ holds the released models; keep its content tracked.
+!weights/
+!weights/*
+# Stray MLflow experiment directories Lightning leaves at the project root
+# when default_root_dir resolution falls back. Match top-level numeric dirs.
+/[0-9]*/
+
+# LaTeX paper sources — kept locally, not pushed with the code repo.
+paper/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+.playwright-cli/

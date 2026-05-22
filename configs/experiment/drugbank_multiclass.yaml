@@ -1,0 +1,69 @@
+seed_everything: 42
+trainer:
+  accelerator: gpu
+  devices: 1
+  precision: bf16-mixed
+  deterministic: true
+  max_epochs: 60
+  gradient_clip_val: 1.0
+  log_every_n_steps: 25
+  enable_model_summary: false
+  logger:
+    class_path: graphddi.training.MLFlowLogger
+    init_args:
+      experiment_name: graphddi-drugbank-multiclass
+      log_model: false
+  callbacks:
+  - class_path: graphddi.training.GraphDDIParamSummary
+  - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: step
+  - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+    init_args:
+      monitor: val/f1_macro
+      mode: max
+      save_top_k: 3
+      save_last: true
+  - class_path: graphddi.training.GraphDDIProgressBar
+  - class_path: lightning.pytorch.callbacks.EarlyStopping
+    init_args:
+      monitor: val/f1_macro
+      mode: max
+      patience: 10
+      min_delta: 0.001
+data:
+  class_path: graphddi.data.DrugBankDataModule
+  init_args:
+    task: multiclass
+    batch_size: 256
+    num_workers: 4
+    data_root: ./data
+    seed: 42
+    oversample_min_fraction: 0.005
+model:
+  class_path: graphddi.models.GraphDDIModule
+  init_args:
+    encoder:
+      class_path: graphddi.models.PNAEncoder
+      init_args:
+        in_channels: 108
+        hidden_channels: 64
+        edge_dim: 9
+        edge_hidden_channels: 128
+        num_layers: 6
+        dropout: 0.1
+    readout:
+      class_path: graphddi.models.Set2SetReadout
+      init_args:
+        in_channels: 128
+        processing_steps: 2
+        project_to: 128
+    use_interaction_map: true
+    hidden_dim: 64
+    mlp_hidden_dim: 128
+    dropout: 0.1
+    label_smoothing: 0.1
+    lr: 0.0003
+    weight_decay: 0.01
+    warmup_steps: 1000
+    max_steps: 100000

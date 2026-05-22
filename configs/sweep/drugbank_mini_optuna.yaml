@@ -1,0 +1,26 @@
+# Small Optuna sweep on the mini fixture. Each trial trains for ~1 epoch.
+base_config: configs/experiment/smoke_mini.yaml
+
+sweep:
+  n_trials: 5
+  sampler: tpe
+  pruner: hyperband
+  monitor: val/f1_macro
+
+mlflow:
+  tracking_uri: file:./mlruns
+  experiment_name: graphddi-sweep-mini
+
+search_space:
+  model.init_args.lr:
+    type: loguniform
+    low: 1.0e-4
+    high: 1.0e-2
+  model.init_args.dropout:
+    type: uniform
+    low: 0.0
+    high: 0.3
+  model.init_args.weight_decay:
+    type: loguniform
+    low: 1.0e-4
+    high: 1.0e-1
