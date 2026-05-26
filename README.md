@@ -38,7 +38,7 @@ DrugBank uses the Ryu et al. (2018) split via Therapeutics Data Commons, random 
 | Macro-Recall    | 0.9294 |
 | Micro-F1        | 0.9408 |
 | PR-AUC          | 0.9621 |
-| Per-class F1 ≥ 1.0 | 20 classes |
+| Per-class F1 ~= 1.0 | 20 classes |
 | Per-class F1 = 0.0 |  2 classes |
 
 The shipped checkpoint (`weights/multiclass.ckpt`) is the best-val epoch from a 60-epoch run on the default config. Reproduce the test row with `uv run python scripts/train.py test --config configs/experiment/drugbank_multiclass.yaml --ckpt_path weights/multiclass.ckpt`.
